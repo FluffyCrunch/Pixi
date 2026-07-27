@@ -1,0 +1,39 @@
+{
+  "bundles": [
+    {
+      "name": "game",
+      "assets": [
+        { "alias": "tile-grass",       "src": "assets/kenney/tile-grass.png" },
+        { "alias": "tile-dirt",        "src": "assets/kenney/tile-dirt.png" },
+        { "alias": "tile-straight",    "src": "assets/kenney/tile-straight.png" },
+        { "alias": "tile-corner-inner","src": "assets/kenney/tile-corner-inner.png" },
+        { "alias": "tile-corner-outer","src": "assets/kenney/tile-corner-outer.png" },
+        { "alias": "tile-spawn",       "src": "assets/kenney/tile-spawn.png" },
+        { "alias": "tile-end",         "src": "assets/kenney/tile-end.png" },
+        { "alias": "tile-tree",        "src": "assets/kenney/tile-tree.png" },
+        { "alias": "tile-rock",        "src": "assets/kenney/tile-rock.png" },
+        { "alias": "tower-base",       "src": "assets/kenney/tower-base.png" },
+        { "alias": "tower-bottom-a",   "src": "assets/kenney/tower-bottom-a.png" },
+        { "alias": "tower-bottom-b",   "src": "assets/kenney/tower-bottom-b.png" },
+        { "alias": "tower-bottom-c",   "src": "assets/kenney/tower-bottom-c.png" },
+        { "alias": "tower-top-a",      "src": "assets/kenney/tower-top-a.png" },
+        { "alias": "tower-top-b",      "src": "assets/kenney/tower-top-b.png" },
+        { "alias": "tower-top-c",      "src": "assets/kenney/tower-top-c.png" },
+        { "alias": "tower-crystals",   "src": "assets/kenney/tower-crystals.png" },
+        { "alias": "weapon-cannon",    "src": "assets/kenney/weapon-cannon.png" },
+        { "alias": "weapon-turret",    "src": "assets/kenney/weapon-turret.png" },
+        { "alias": "weapon-ballista",  "src": "assets/kenney/weapon-ballista.png" },
+        { "alias": "weapon-catapult",  "src": "assets/kenney/weapon-catapult.png" },
+        { "alias": "ammo-bullet",      "src": "assets/kenney/ammo-bullet.png" },
+        { "alias": "ammo-cannonball",  "src": "assets/kenney/ammo-cannonball.png" },
+        { "alias": "ammo-arrow",       "src": "assets/kenney/ammo-arrow.png" },
+        { "alias": "ammo-boulder",     "src": "assets/kenney/ammo-boulder.png" },
+        { "alias": "enemy-a",          "src": "assets/kenney/enemy-a.png" },
+        { "alias": "enemy-b",          "src": "assets/kenney/enemy-b.png" },
+        { "alias": "enemy-c",          "src": "assets/kenney/enemy-c.png" },
+        { "alias": "enemy-d",          "src": "assets/kenney/enemy-d.png" },
+        { "alias": "selection",        "src": "assets/kenney/selection.png" }
+      ]
+    }
+  ]
+}
