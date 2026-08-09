@@ -1654,6 +1654,10 @@ function buildHUD() {
   50% { filter: brightness(1.4); }
 }
 .buff-chip { animation: buffChip 1.4s ease-in-out infinite; }
+@keyframes swipeHint {
+  0%, 100% { transform: translateY(-50%) translateX(0); opacity: .55; }
+  50% { transform: translateY(-50%) translateX(6px); opacity: 1; }
+}
 .vr-shop::-webkit-scrollbar { height: 0; }
 .vr-shop { scrollbar-width: none; }
 .vr-shopbox { position: fixed; z-index: 10; background: rgba(15,12,8,.55); border: 2px solid rgba(139,105,20,.5); border-radius: 20px; padding: 6px; max-width: min(750px, calc(100vw - clamp(220px, 48vw, 380px))); }
@@ -1697,7 +1701,7 @@ function buildHUD() {
   const shop = el('div', `display:flex;gap:clamp(4px,1.5vw,12px);overflow-x:auto;overflow-y:hidden;padding:14px 4px 8px 4px;${font}`);
   shop.className = 'vr-shop';
   hud.cards = {};
-  for (const type of Object.keys(TOWER_TYPES)) {
+  for (const type of Object.keys(TOWER_TYPES).sort((a, b) => TOWER_TYPES[a].cost - TOWER_TYPES[b].cost)) {
     const def = TOWER_TYPES[type];
     const hex = '#' + def.color.toString(16).padStart(6, '0');
     const card = el('div', `border-top:clamp(4px,1.2vw,6px) solid ${hex};`);
@@ -1758,6 +1762,10 @@ function buildHUD() {
   trapCard.onclick = () => selectTrap();
   hud.trapCard = trapCard; shop.appendChild(trapCard);
   shopBox.appendChild(shop);
+  if (isMobile) {
+    const swipeHint = el('div', `position:absolute;top:50%;right:6px;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.5);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;pointer-events:none;z-index:2;animation:swipeHint 1.3s ease-in-out infinite;`, '›');
+    shopBox.appendChild(swipeHint);
+  }
   document.body.appendChild(shopBox);
 
   hud.start = el('button', `position:fixed;bottom:clamp(14px,4vw,34px);right:clamp(10px,3vw,24px);padding:clamp(10px,3vw,20px) clamp(16px,5vw,38px);border-radius:clamp(10px,3vw,16px);background:#b45309;border:clamp(2px,.6vw,3px) solid #fcd34d;color:#fff3d6;font-size:clamp(15px,4.5vw,28px);font-weight:900;cursor:pointer;z-index:10;${font}`, 'START WAVE');
@@ -1773,8 +1781,8 @@ function buildHUD() {
   if (!isMobile) sidePanel.appendChild(hud.hint);
 
   const infoGap = isMobile ? 'clamp(3px,1vw,5px)' : 'clamp(6px,1.8vw,10px)';
-  const infoPad = isMobile ? 'clamp(7px,2.2vw,12px) clamp(9px,3vw,18px)' : 'clamp(12px,3.5vw,20px) clamp(14px,5vw,34px)';
-  hud.info = el('div', `position:relative;display:flex;flex-direction:column;align-items:center;gap:${infoGap};padding:${infoPad};border-radius:clamp(12px,3.5vw,20px);background:linear-gradient(160deg, rgba(32,25,16,.97), rgba(10,8,5,.98));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:2px solid #8b6914;min-width:${isMobile ? 'min(280px,86vw)' : 'min(320px,86vw)'};box-shadow:0 16px 44px rgba(0,0,0,.55);opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .2s ease, transform .2s ease, border-color .2s ease, box-shadow .2s ease;`);
+  const infoPad = isMobile ? 'clamp(6px,2vw,10px) clamp(5px,1.5vw,9px)' : 'clamp(12px,3.5vw,20px) clamp(14px,5vw,34px)';
+  hud.info = el('div', `position:relative;display:flex;flex-direction:column;align-items:center;gap:${infoGap};padding:${infoPad};border-radius:clamp(12px,3.5vw,20px);background:linear-gradient(160deg, rgba(32,25,16,.97), rgba(10,8,5,.98));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:2px solid #8b6914;min-width:${isMobile ? 'min(320px,92vw)' : 'min(320px,86vw)'};box-sizing:border-box;box-shadow:0 16px 44px rgba(0,0,0,.55);opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .2s ease, transform .2s ease, border-color .2s ease, box-shadow .2s ease;`);
   hud.infoName = el('div', `font-size:${isMobile ? 'clamp(14px,4vw,20px)' : 'clamp(17px,5vw,27px)'};font-weight:900;letter-spacing:.5px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);text-align:center;`, 'TOWER');
   hud.infoAccent = el('div', `width:clamp(40px,10vw,64px);height:3px;border-radius:2px;background:#fff;opacity:.85;`);
   hud.infoStats = el('div', `display:flex;gap:clamp(4px,1.5vw,8px);flex-wrap:wrap;justify-content:center;font-size:clamp(11px,3vw,15px);font-weight:900;color:#e7ecf3;`, '');
