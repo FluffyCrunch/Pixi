@@ -330,12 +330,6 @@ function buildCastle(cx, cz) {
 
 function applyCastleDamage(frac) {
   castleDamageFrac = frac;
-  const bright = 0.35 + 0.65 * frac;
-  for (const cm of castleMeshMats) {
-    cm.mat.baseColor.r = cm.r * bright;
-    cm.mat.baseColor.g = cm.g * bright;
-    cm.mat.baseColor.b = cm.b * bright;
-  }
   if (frac <= 0.25 && !castleTiltDone) {
     castleTiltDone = true;
     for (const roof of castleRoofs) {
@@ -349,11 +343,13 @@ function applyCastleDamage(frac) {
 function spawnCastleFire() {
   const fireMat = unlitMat(0xff6a1a, 0.9);
   const p = Mesh3D.createSphere(fireMat);
-  const ox = (Math.random() - 0.5) * T * 0.6, oz = (Math.random() - 0.5) * T * 0.6;
-  p.position.set(baseWorld.x + ox, tileTop + T * 0.9, baseWorld.z + oz);
+  const ang = Math.random() * Math.PI * 2;
+  const rad = T * (0.85 + Math.random() * 0.4);
+  const oy = T * (0.3 + Math.random() * 1.1);
+  p.position.set(baseWorld.x + Math.cos(ang) * rad, tileTop + oy, baseWorld.z + Math.sin(ang) * rad);
   app.stage.addChild(p);
   const life = 380 + Math.random() * 220;
-  bursts.push({ mesh: p, mat: fireMat, vx: (Math.random() - 0.5) * 0.15, vz: (Math.random() - 0.5) * 0.15, vy: 1.3 + Math.random() * 0.6, life, maxLife: life, base: 0.11 + Math.random() * 0.06, kind: 'spark' });
+  bursts.push({ mesh: p, mat: fireMat, vx: Math.cos(ang) * 0.15, vz: Math.sin(ang) * 0.15, vy: 1.3 + Math.random() * 0.6, life, maxLife: life, base: 0.14 + Math.random() * 0.07, kind: 'spark' });
 }
 
 function updateCastleFire(dt) {
