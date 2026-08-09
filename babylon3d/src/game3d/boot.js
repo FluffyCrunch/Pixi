@@ -1554,6 +1554,13 @@ window.__voidrush = {
 
 // ── HTML HUD ────────────────────────────────────────────────────
 let hud = {};
+const isMobile = window.matchMedia('(max-width: 640px)').matches;
+function placementTipSeen() {
+  try { return localStorage.getItem('vr_tip_seen') === '1'; } catch { return false; }
+}
+function markPlacementTipSeen() {
+  try { localStorage.setItem('vr_tip_seen', '1'); } catch {}
+}
 function el(tag, style, txt) { const e = document.createElement(tag); e.style.cssText = style; if (txt != null) e.textContent = txt; return e; }
 
 const ENEMY_ICON_SVG = {
@@ -1684,13 +1691,12 @@ function buildHUD() {
 .vr-card-cost { font-size: clamp(11px,3vw,19px); font-weight: 900; line-height: 1.15; }
 @media (max-width: 640px) {
   .vr-banner { max-width: calc(100vw - 24px) !important; top: clamp(100px, 24vw, 150px) !important; font-size: clamp(13px,4vw,18px) !important; }
-  .vr-sidepanel { top: 50% !important; right: auto !important; left: 50% !important; transform: translate(-50%, -50%) !important; align-items: center !important; max-width: 92vw !important; max-height: 80vh !important; overflow-y: auto !important; }
 }`;
   document.head.appendChild(styleTag);
 
   // a column wrapper stacks the top pills + cave indicator with no manual
   // pixel math, so they never overlap regardless of pill height/font size
-  const topWrap = el('div', `position:fixed;top:clamp(6px,2vw,14px);left:clamp(6px,2vw,14px);display:flex;flex-direction:column;align-items:flex-start;gap:clamp(5px,1.5vw,10px);z-index:10;max-width:60vw;${font}`);
+  const topWrap = el('div', `position:fixed;top:clamp(6px,2vw,14px);left:clamp(6px,2vw,14px);display:flex;flex-direction:column;align-items:flex-start;gap:clamp(5px,1.5vw,10px);z-index:10;max-width:${isMobile ? '92vw' : '60vw'};${font}`);
   const bar = el('div', `display:flex;flex-wrap:wrap;gap:clamp(6px,2vw,14px);`);
   const pill = (bg, brd) => `display:flex;align-items:center;gap:clamp(4px,1.5vw,10px);padding:clamp(6px,1.8vw,12px) clamp(8px,3vw,24px);border-radius:clamp(10px,3vw,16px);background:${bg};border:clamp(2px,.6vw,3px) solid ${brd};color:#fff;font-size:clamp(15px,4.5vw,30px);font-weight:900;white-space:nowrap;`;
   hud.hp = el('div', pill('rgba(90,26,26,.92)', '#ef4444'));
@@ -1793,16 +1799,20 @@ function buildHUD() {
   sidePanel.className = 'vr-sidepanel';
 
   // placement prompt (shown while a tower type is selected)
-  hud.hint = el('div', `padding:clamp(8px,2.5vw,12px) clamp(12px,4vw,26px);border-radius:14px;background:rgba(20,30,50,.94);border:clamp(2px,.6vw,3px) solid #60a5fa;color:#dbeafe;font-size:clamp(13px,3.8vw,20px);font-weight:900;display:none;`);
-  sidePanel.appendChild(hud.hint);
+  hud.hint = isMobile
+    ? el('div', `padding:clamp(4px,1.2vw,7px) clamp(4px,1.5vw,8px);color:#bcd4ea;font-size:clamp(9.5px,2.4vw,12px);font-weight:700;display:none;text-align:left;`)
+    : el('div', `padding:clamp(8px,2.5vw,12px) clamp(12px,4vw,26px);border-radius:14px;background:rgba(20,30,50,.94);border:clamp(2px,.6vw,3px) solid #60a5fa;color:#dbeafe;font-size:clamp(13px,3.8vw,20px);font-weight:900;display:none;`);
+  if (!isMobile) sidePanel.appendChild(hud.hint);
 
   // tower info panel — cinematic glass card: gradient + blur + a glow that
   // matches the tower's own color, with a soft fade/scale-in transition
-  hud.info = el('div', `position:relative;display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1.8vw,10px);padding:clamp(12px,3.5vw,20px) clamp(14px,5vw,34px);border-radius:clamp(12px,3.5vw,20px);background:linear-gradient(160deg, rgba(32,25,16,.97), rgba(10,8,5,.98));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:2px solid #8b6914;min-width:min(320px,86vw);box-shadow:0 16px 44px rgba(0,0,0,.55);opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .2s ease, transform .2s ease, border-color .2s ease, box-shadow .2s ease;`);
-  hud.infoName = el('div', `font-size:clamp(17px,5vw,27px);font-weight:900;letter-spacing:.5px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);text-align:center;`, 'TOWER');
+  const infoGap = isMobile ? 'clamp(3px,1vw,5px)' : 'clamp(6px,1.8vw,10px)';
+  const infoPad = isMobile ? 'clamp(7px,2.2vw,12px) clamp(9px,3vw,18px)' : 'clamp(12px,3.5vw,20px) clamp(14px,5vw,34px)';
+  hud.info = el('div', `position:relative;display:flex;flex-direction:column;align-items:center;gap:${infoGap};padding:${infoPad};border-radius:clamp(12px,3.5vw,20px);background:linear-gradient(160deg, rgba(32,25,16,.97), rgba(10,8,5,.98));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:2px solid #8b6914;min-width:${isMobile ? 'min(280px,86vw)' : 'min(320px,86vw)'};box-shadow:0 16px 44px rgba(0,0,0,.55);opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .2s ease, transform .2s ease, border-color .2s ease, box-shadow .2s ease;`);
+  hud.infoName = el('div', `font-size:${isMobile ? 'clamp(14px,4vw,20px)' : 'clamp(17px,5vw,27px)'};font-weight:900;letter-spacing:.5px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);text-align:center;`, 'TOWER');
   hud.infoAccent = el('div', `width:clamp(40px,10vw,64px);height:3px;border-radius:2px;background:#fff;opacity:.85;`);
   hud.infoStats = el('div', `display:flex;gap:clamp(4px,1.5vw,8px);flex-wrap:wrap;justify-content:center;font-size:clamp(11px,3vw,15px);font-weight:900;color:#e7ecf3;`, '');
-  const row = el('div', `display:flex;flex-wrap:wrap;gap:clamp(6px,2vw,14px);align-items:center;justify-content:center;margin-top:4px;`);
+  const row = el('div', `display:flex;flex-wrap:wrap;gap:${isMobile ? 'clamp(3px,1vw,7px)' : 'clamp(6px,2vw,14px)'};align-items:center;justify-content:center;margin-top:${isMobile ? '1px' : '4px'};`);
   hud.infoBuy = el('div', `padding:clamp(5px,1.5vw,9px) clamp(8px,2.5vw,16px);border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,233,168,.35);font-size:clamp(12px,3.4vw,18px);font-weight:900;color:#ffe9a8;`, '');
   hud.levelChip = el('div', `padding:clamp(5px,1.5vw,9px) clamp(8px,2.5vw,16px);border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(192,132,252,.4);font-size:clamp(11px,3vw,16px);font-weight:900;color:#e9d5ff;display:none;`, '');
   hud.sellBtn = el('button', `padding:clamp(6px,2vw,11px) clamp(12px,4vw,22px);border-radius:12px;background:linear-gradient(160deg,#9a2b2b,#6b1616);border:2px solid #ef8a8a;color:#ffe1e1;font-size:clamp(12px,3.4vw,18px);font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35);${font}`, 'SELL');
@@ -1810,7 +1820,7 @@ function buildHUD() {
   hud.closeBtn = el('button', `position:absolute;top:clamp(6px,2vw,10px);right:clamp(6px,2vw,10px);width:clamp(26px,7vw,34px);height:clamp(26px,7vw,34px);border-radius:50%;background:linear-gradient(160deg,#3d3d3d,#222);border:2px solid #777;color:#eee;font-size:clamp(13px,3.6vw,18px);font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;padding:0;${font}`, '✕');
   hud.closeBtn.onclick = () => hideInfo();
   row.append(hud.infoBuy, hud.levelChip, hud.sellBtn);
-  const upRow = el('div', `display:flex;flex-wrap:wrap;gap:clamp(4px,1.5vw,10px);align-items:center;justify-content:center;margin-top:2px;`);
+  const upRow = el('div', `display:flex;flex-wrap:wrap;gap:${isMobile ? 'clamp(3px,1vw,7px)' : 'clamp(4px,1.5vw,10px)'};align-items:center;justify-content:center;margin-top:${isMobile ? '0px' : '2px'};`);
   hud.upgradeBtn = el('button', `padding:clamp(6px,2vw,10px) clamp(8px,3vw,18px);border-radius:12px;background:linear-gradient(160deg,#7c3aed,#4c1d95);border:2px solid #c084fc;color:#f3e8ff;font-size:clamp(11px,3vw,16px);font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35);display:none;${font}`, 'UPGRADE');
   hud.upgradeBtn.onclick = () => { if (sellTarget && sellTarget.upgrade()) showInfo(sellTarget.def, sellTarget); };
   hud.overchargeBtn = el('button', `padding:clamp(6px,2vw,10px) clamp(7px,2.5vw,16px);border-radius:12px;background:linear-gradient(160deg,#0284c7,#0c4a6e);border:2px solid #7dd3fc;color:#e0f2fe;font-size:clamp(10px,2.8vw,15px);font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35);display:none;${font}`, 'OVERCHARGE');
@@ -1834,15 +1844,15 @@ function buildHUD() {
     sfx.place(); updateHUD(); showInfo(sellTarget.def, sellTarget);
   };
   upRow.append(hud.upgradeBtn, hud.overchargeBtn, hud.powerShotBtn);
-  const branchRow = el('div', `display:flex;flex-wrap:wrap;gap:clamp(4px,1.5vw,10px);align-items:stretch;justify-content:center;margin-top:2px;`);
+  const branchRow = el('div', `display:flex;flex-wrap:wrap;gap:${isMobile ? 'clamp(3px,1vw,7px)' : 'clamp(4px,1.5vw,10px)'};align-items:stretch;justify-content:center;margin-top:${isMobile ? '0px' : '2px'};`);
   hud.branchABtn = el('button', `padding:clamp(5px,1.5vw,9px) clamp(6px,2vw,12px);border-radius:12px;background:linear-gradient(160deg,#7c3aed,#4c1d95);border:2px solid #c084fc;color:#f3e8ff;font-size:clamp(9px,2.5vw,12px);font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35);display:none;max-width:min(150px,42vw);line-height:1.3;${font}`, '');
   hud.branchABtn.onclick = () => { if (sellTarget && sellTarget.upgrade('a')) showInfo(sellTarget.def, sellTarget); };
   hud.branchBBtn = el('button', `padding:clamp(5px,1.5vw,9px) clamp(6px,2vw,12px);border-radius:12px;background:linear-gradient(160deg,#7c3aed,#4c1d95);border:2px solid #c084fc;color:#f3e8ff;font-size:clamp(9px,2.5vw,12px);font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35);display:none;max-width:min(150px,42vw);line-height:1.3;${font}`, '');
   hud.branchBBtn.onclick = () => { if (sellTarget && sellTarget.upgrade('b')) showInfo(sellTarget.def, sellTarget); };
   branchRow.append(hud.branchABtn, hud.branchBBtn);
   hud.info.append(hud.closeBtn, hud.infoName, hud.infoAccent, hud.infoStats, row, upRow, branchRow);
-  sidePanel.appendChild(hud.info);
-  document.body.appendChild(sidePanel);
+  if (isMobile) { topWrap.appendChild(hud.info); topWrap.appendChild(hud.hint); }
+  else { sidePanel.appendChild(hud.info); document.body.appendChild(sidePanel); }
 
   window.addEventListener('keydown', e => { if (e.key === 'Escape') { selectType(null); hideInfo(); } });
 }
@@ -1920,9 +1930,13 @@ function updateHint() {
     if (state.gold < TRAP_DEF.cost) {
       hud.hint.textContent = `❌ Not enough coins — Spike Trap costs 🪙 ${TRAP_DEF.cost}`;
       hud.hint.style.borderColor = '#ef4444'; hud.hint.style.color = '#ffdada';
+    } else if (isMobile && placementTipSeen()) {
+      hud.hint.style.display = 'none';
+      return;
     } else {
       hud.hint.textContent = `📍 Click a highlighted path tile to place a Spike Trap   ·   Esc to cancel`;
       hud.hint.style.borderColor = '#60a5fa'; hud.hint.style.color = '#dbeafe';
+      if (isMobile) markPlacementTipSeen();
     }
     hud.hint.style.display = 'block';
     return;
@@ -1932,9 +1946,13 @@ function updateHint() {
   if (state.gold < def.cost) {
     hud.hint.textContent = `❌ Not enough coins — ${def.name} costs 🪙 ${def.cost}`;
     hud.hint.style.borderColor = '#ef4444'; hud.hint.style.color = '#ffdada';
+  } else if (isMobile && placementTipSeen()) {
+    hud.hint.style.display = 'none';
+    return;
   } else {
     hud.hint.textContent = `📍 Click a highlighted tile to place your ${def.name} tower   ·   Esc to cancel`;
     hud.hint.style.borderColor = '#60a5fa'; hud.hint.style.color = '#dbeafe';
+    if (isMobile) markPlacementTipSeen();
   }
   hud.hint.style.display = 'block';
 }
