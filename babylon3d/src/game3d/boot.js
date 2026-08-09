@@ -108,24 +108,44 @@ function collectCastleMats(model) {
 
 // a proper castle: stone platform + central keep + 4 corner turrets
 function buildCastle(cx, cz) {
-  const base = MeshBuilder.CreateBox('castleBase', { width: T * 1.8, depth: T * 1.8, height: T * 0.28 }, scene);
-  const bm = new StandardMaterial('cbm', scene); bm.diffuseColor = new Color3(0.56, 0.58, 0.62);
-  base.material = bm; base.position.set(cx, tileTop + T * 0.14, cz);
+  const base = MeshBuilder.CreateBox('castleBase', { width: T * 2.1, depth: T * 2.1, height: T * 0.34 }, scene);
+  const bm = new StandardMaterial('cbm', scene);
+  bm.diffuseColor = new Color3(0.64, 0.66, 0.72);
+  bm.specularColor = new Color3(1, 1, 1);
+  bm.specularPower = 128;
+  base.material = bm; base.position.set(cx, tileTop + T * 0.17, cz);
   base.receiveShadows = true; shadow.addShadowCaster(base);
-  castleMeshMats.push({ mat: bm, prop: 'diffuseColor', r: 0.56, g: 0.58, b: 0.62 });
-  castleTopY = tileTop + T * 1.4;
-  const topB = tileTop + T * 0.28;
+  castleMeshMats.push({ mat: bm, prop: 'diffuseColor', r: 0.64, g: 0.66, b: 0.72 });
+  castleTopY = tileTop + T * 1.75;
+  const topB = tileTop + T * 0.34;
   const mainParts = [];
-  stackParts(cx, cz, ['tower-square-bottom-a', 'tower-square-middle-a', 'tower-square-top-a', 'tower-square-roof-a'], 1.05, mainParts, topB);
+  stackParts(cx, cz, ['tower-square-bottom-a', 'tower-square-middle-a', 'tower-square-top-a', 'tower-square-roof-a'], 1.35, mainParts, topB);
   mainParts.forEach(collectCastleMats);
   castleRoofs.push(mainParts[mainParts.length - 1]);
-  const d = T * 0.52;
+  const d = T * 0.66;
   for (const [dx, dz] of [[-d, -d], [d, -d], [-d, d], [d, d]]) {
     const cornerParts = [];
-    stackParts(cx + dx, cz + dz, ['tower-round-bottom-a', 'tower-round-top-a', 'tower-round-roof-a'], 0.6, cornerParts, topB);
+    stackParts(cx + dx, cz + dz, ['tower-round-bottom-a', 'tower-round-top-a', 'tower-round-roof-a'], 0.72, cornerParts, topB);
     cornerParts.forEach(collectCastleMats);
     castleRoofs.push(cornerParts[cornerParts.length - 1]);
   }
+  for (const cm of castleMeshMats) {
+    if ('metallic' in cm.mat) { cm.mat.metallic = 0.45; cm.mat.roughness = 0.3; }
+  }
+  const poleMat = new StandardMaterial('poleMat', scene);
+  poleMat.diffuseColor = new Color3(0.78, 0.75, 0.7);
+  poleMat.specularColor = new Color3(1, 1, 1);
+  poleMat.specularPower = 96;
+  const poleH = T * 0.55;
+  const pole = MeshBuilder.CreateCylinder('flagPole', { diameterTop: 0.024, diameterBottom: 0.036, height: poleH, tessellation: 6 }, scene);
+  pole.material = poleMat; pole.isPickable = false;
+  pole.position.set(cx, castleTopY + poleH / 2, cz);
+  shadow.addShadowCaster(pole);
+  const flagMat = new StandardMaterial('flagMat', scene);
+  flagMat.emissiveColor = new Color3(1, 0.35, 0.24); flagMat.disableLighting = true;
+  const flag = MeshBuilder.CreateBox('flag', { width: T * 0.09, height: T * 0.06, depth: T * 0.006 }, scene);
+  flag.material = flagMat; flag.isPickable = false;
+  flag.position.set(cx + T * 0.09, castleTopY + poleH * 0.78, cz);
 }
 
 function applyCastleDamage(frac) {
@@ -1365,6 +1385,7 @@ async function build() {
 
   camera.setTarget(new Vector3((MAP_COLS / 2) * T, 0, (MAP_ROWS / 2) * T));
   camera.radius = MAP_COLS * T * 1.25;
+  camera.panningDistanceLimit = Math.max(MAP_COLS, MAP_ROWS) * T * 0.65;
 
   buildHUD();
   buildIntro();
@@ -1823,17 +1844,6 @@ html, body { -webkit-user-select: none; -moz-user-select: none; user-select: non
   hud.start.onclick = () => { ensureAudio(); if (state.phase === 'place' && state.wave < WAVES.length) { setBanner(true); sfx.wave(); spawner.start(); } };
   document.body.appendChild(hud.start);
 
-  let panOffset = 0;
-  const panMax = T * 3;
-  const panStep = T * 1;
-  const applyPan = () => { camera.target.x = (MAP_COLS / 2) * T + panOffset; };
-  const makePanBtn = side => el('button', `position:fixed;top:50%;${side}:clamp(6px,2vw,14px);transform:translateY(-50%);width:clamp(34px,8vw,46px);height:clamp(34px,8vw,46px);border-radius:50%;background:rgba(20,16,10,.5);border:2px solid rgba(255,255,255,.4);color:#fff;font-size:clamp(15px,4vw,20px);font-weight:900;cursor:pointer;z-index:9;display:flex;align-items:center;justify-content:center;padding:0;${font}`, side === 'left' ? '◀' : '▶');
-  const panLeftBtn = makePanBtn('left');
-  const panRightBtn = makePanBtn('right');
-  panLeftBtn.onclick = () => { panOffset = Math.max(-panMax, panOffset - panStep); applyPan(); };
-  panRightBtn.onclick = () => { panOffset = Math.min(panMax, panOffset + panStep); applyPan(); };
-  document.body.appendChild(panLeftBtn);
-  document.body.appendChild(panRightBtn);
 
   // hint + tower info panel share one right-anchored column, tucked under
   // the help button and out of the way of the map's central play area

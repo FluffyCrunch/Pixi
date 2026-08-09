@@ -286,26 +286,42 @@ function collectCastleMats(model) {
 }
 
 function buildCastle(cx, cz) {
-  const baseMat = solidMat(0.56, 0.58, 0.62);
+  const baseMat = solidMat(0.64, 0.66, 0.72);
+  baseMat.metallic = 0.55;
+  baseMat.roughness = 0.22;
   const base = Mesh3D.createCube(baseMat);
-  base.scale.set(T * 1.8 / 2, T * 0.28 / 2, T * 1.8 / 2);
-  base.position.set(cx, tileTop + T * 0.14, cz);
+  base.scale.set(T * 2.1 / 2, T * 0.34 / 2, T * 2.1 / 2);
+  base.position.set(cx, tileTop + T * 0.17, cz);
   pipeline.enableShadows(base, shadowLight);
   app.stage.addChild(base);
-  castleMeshMats.push({ mat: baseMat, r: 0.56, g: 0.58, b: 0.62 });
-  castleTopY = tileTop + T * 1.4;
-  const topB = tileTop + T * 0.28;
+  castleMeshMats.push({ mat: baseMat, r: 0.64, g: 0.66, b: 0.72 });
+  castleTopY = tileTop + T * 1.75;
+  const topB = tileTop + T * 0.34;
   const mainParts = [];
-  stackParts(cx, cz, ['tower-square-bottom-a', 'tower-square-middle-a', 'tower-square-top-a', 'tower-square-roof-a'], 1.05, mainParts, topB);
+  stackParts(cx, cz, ['tower-square-bottom-a', 'tower-square-middle-a', 'tower-square-top-a', 'tower-square-roof-a'], 1.35, mainParts, topB);
   mainParts.forEach(collectCastleMats);
   castleRoofs.push(mainParts[mainParts.length - 1]);
-  const d = T * 0.52;
+  const d = T * 0.66;
   for (const [dx, dz] of [[-d, -d], [d, -d], [-d, d], [d, d]]) {
     const cornerParts = [];
-    stackParts(cx + dx, cz + dz, ['tower-round-bottom-a', 'tower-round-top-a', 'tower-round-roof-a'], 0.6, cornerParts, topB);
+    stackParts(cx + dx, cz + dz, ['tower-round-bottom-a', 'tower-round-top-a', 'tower-round-roof-a'], 0.72, cornerParts, topB);
     cornerParts.forEach(collectCastleMats);
     castleRoofs.push(cornerParts[cornerParts.length - 1]);
   }
+  for (const cm of castleMeshMats) { cm.mat.metallic = 0.45; cm.mat.roughness = 0.3; }
+  const poleMat = solidMat(0.78, 0.75, 0.7);
+  poleMat.metallic = 0.7;
+  poleMat.roughness = 0.2;
+  const poleH = T * 0.55;
+  const pole = Mesh3D.createCylinder(poleMat, { radiusTop: 0.012, radiusBottom: 0.018, height: 1, radialSegments: 6 });
+  pole.scale.set(1, poleH, 1);
+  pole.position.set(cx, castleTopY + poleH / 2, cz);
+  pipeline.enableShadows(pole, shadowLight);
+  app.stage.addChild(pole);
+  const flag = Mesh3D.createCube(unlitMat(0xff5a3c));
+  flag.scale.set(T * 0.09, T * 0.06, T * 0.006);
+  flag.position.set(cx + T * 0.09, castleTopY + poleH * 0.78, cz);
+  app.stage.addChild(flag);
 }
 
 function applyCastleDamage(frac) {
@@ -1796,17 +1812,46 @@ html, body { -webkit-user-select: none; -moz-user-select: none; user-select: non
   hud.start.onclick = () => { ensureAudio(); if (state.phase === 'place' && state.wave < WAVES.length) { setBanner(true); sfx.wave(); spawner.start(); } };
   document.body.appendChild(hud.start);
 
-  let panOffset = 0;
-  const panMax = T * 3;
-  const panStep = T * 1;
-  const applyPan = () => { control.target.x = (MAP_COLS / 2) * T + panOffset; };
-  const makePanBtn = side => el('button', `position:fixed;top:50%;${side}:clamp(6px,2vw,14px);transform:translateY(-50%);width:clamp(34px,8vw,46px);height:clamp(34px,8vw,46px);border-radius:50%;background:rgba(20,16,10,.5);border:2px solid rgba(255,255,255,.4);color:#fff;font-size:clamp(15px,4vw,20px);font-weight:900;cursor:pointer;z-index:9;display:flex;align-items:center;justify-content:center;padding:0;${font}`, side === 'left' ? '◀' : '▶');
-  const panLeftBtn = makePanBtn('left');
-  const panRightBtn = makePanBtn('right');
-  panLeftBtn.onclick = () => { panOffset = Math.max(-panMax, panOffset - panStep); applyPan(); };
-  panRightBtn.onclick = () => { panOffset = Math.min(panMax, panOffset + panStep); applyPan(); };
-  document.body.appendChild(panLeftBtn);
-  document.body.appendChild(panRightBtn);
+  const panBaseX = (MAP_COLS / 2) * T, panBaseZ = (MAP_ROWS / 2) * T;
+  const panLimitX = panBaseX * 0.9, panLimitZ = panBaseZ * 0.9;
+  const panBy = (dxScreen, dyScreen) => {
+    const yawRad = control.angles.y * Math.PI / 180;
+    const rightX = Math.cos(yawRad), rightZ = -Math.sin(yawRad);
+    const fwdX = Math.sin(yawRad), fwdZ = Math.cos(yawRad);
+    const speed = control.distance * 0.0022;
+    const dx = (-dxScreen * rightX - dyScreen * fwdX) * speed;
+    const dz = (-dxScreen * rightZ - dyScreen * fwdZ) * speed;
+    control.target.x = Math.min(panBaseX + panLimitX, Math.max(panBaseX - panLimitX, control.target.x + dx));
+    control.target.z = Math.min(panBaseZ + panLimitZ, Math.max(panBaseZ - panLimitZ, control.target.z + dz));
+  };
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+  let rmbDragging = false, lastPanX = 0, lastPanY = 0;
+  canvas.addEventListener('mousedown', e => {
+    if (e.button === 2) { rmbDragging = true; lastPanX = e.clientX; lastPanY = e.clientY; }
+  });
+  window.addEventListener('mousemove', e => {
+    if (rmbDragging) { panBy(e.clientX - lastPanX, e.clientY - lastPanY); lastPanX = e.clientX; lastPanY = e.clientY; }
+  });
+  window.addEventListener('mouseup', () => { rmbDragging = false; });
+  const touchPan = new Map();
+  canvas.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      for (const t of e.touches) touchPan.set(t.identifier, { x: t.clientX, y: t.clientY });
+    }
+  }, { passive: true });
+  window.addEventListener('touchmove', e => {
+    if (e.touches.length === 2 && touchPan.size === 2) {
+      let dx = 0, dy = 0, n = 0;
+      for (const t of e.touches) {
+        const prev = touchPan.get(t.identifier);
+        if (prev) { dx += t.clientX - prev.x; dy += t.clientY - prev.y; n++; touchPan.set(t.identifier, { x: t.clientX, y: t.clientY }); }
+      }
+      if (n) panBy(dx / n, dy / n);
+    }
+  }, { passive: true });
+  window.addEventListener('touchend', e => {
+    if (e.touches.length < 2) touchPan.clear();
+  });
 
   const sidePanel = el('div', `position:fixed;top:clamp(78px,17vw,90px);right:clamp(6px,2vw,14px);display:flex;flex-direction:column;align-items:flex-end;gap:clamp(8px,2.5vw,16px);z-index:11;max-width:min(380px,94vw);${font}`);
   sidePanel.className = 'vr-sidepanel';
