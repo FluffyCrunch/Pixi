@@ -342,7 +342,7 @@ function applyCastleDamage(frac) {
 
 function spawnCastleFire() {
   const ang = Math.random() * Math.PI * 2;
-  const rad = T * (1.15 + Math.random() * 0.55);
+  const rad = T * (0.95 + Math.random() * 0.4);
   const oy = T * (0.15 + Math.random() * 0.75);
   const bx = baseWorld.x + Math.cos(ang) * rad, bz = baseWorld.z + Math.sin(ang) * rad, by = tileTop + oy;
   const vx = Math.cos(ang) * 0.12, vz = Math.sin(ang) * 0.12;
