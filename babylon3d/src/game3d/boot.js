@@ -116,10 +116,9 @@ function buildCastle(cx, cz) {
   base.material = bm; base.position.set(cx, tileTop + T * 0.17, cz);
   base.receiveShadows = true; shadow.addShadowCaster(base);
   castleMeshMats.push({ mat: bm, prop: 'diffuseColor', r: 0.64, g: 0.66, b: 0.72 });
-  castleTopY = tileTop + T * 1.75;
   const topB = tileTop + T * 0.34;
   const mainParts = [];
-  stackParts(cx, cz, ['tower-square-bottom-a', 'tower-square-middle-a', 'tower-square-top-a', 'tower-square-roof-a'], 1.35, mainParts, topB);
+  castleTopY = stackParts(cx, cz, ['tower-square-bottom-a', 'tower-square-middle-a', 'tower-square-top-a', 'tower-square-roof-a'], 1.35, mainParts, topB);
   mainParts.forEach(collectCastleMats);
   castleRoofs.push(mainParts[mainParts.length - 1]);
   const d = T * 0.66;
