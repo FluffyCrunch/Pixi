@@ -1636,6 +1636,7 @@ function buildIntro() {
 function buildHUD() {
   const styleTag = document.createElement('style');
   styleTag.textContent = `
+html, body { -webkit-user-select: none; -moz-user-select: none; user-select: none; -webkit-touch-callout: none; }
 @keyframes hpHit {
   0% { transform: scale(1) rotate(0deg); background-color: rgba(90,26,26,.92); box-shadow: 0 0 0 rgba(239,68,68,0); }
   20% { transform: scale(1.22) rotate(-5deg); background-color: rgba(220,38,38,1); box-shadow: 0 0 26px rgba(239,68,68,.95); }
@@ -1782,7 +1783,7 @@ function buildHUD() {
 
   const infoGap = isMobile ? 'clamp(3px,1vw,5px)' : 'clamp(6px,1.8vw,10px)';
   const infoPad = isMobile ? 'clamp(6px,2vw,10px) clamp(5px,1.5vw,9px)' : 'clamp(12px,3.5vw,20px) clamp(14px,5vw,34px)';
-  hud.info = el('div', `position:relative;display:flex;flex-direction:column;align-items:center;gap:${infoGap};padding:${infoPad};border-radius:clamp(12px,3.5vw,20px);background:linear-gradient(160deg, rgba(32,25,16,.97), rgba(10,8,5,.98));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:2px solid #8b6914;min-width:${isMobile ? 'min(320px,92vw)' : 'min(320px,86vw)'};box-sizing:border-box;box-shadow:0 16px 44px rgba(0,0,0,.55);opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .2s ease, transform .2s ease, border-color .2s ease, box-shadow .2s ease;`);
+  hud.info = el('div', `position:relative;display:${isMobile ? 'none' : 'flex'};flex-direction:column;align-items:center;gap:${infoGap};padding:${infoPad};border-radius:clamp(12px,3.5vw,20px);background:linear-gradient(160deg, rgba(32,25,16,.97), rgba(10,8,5,.98));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:2px solid #8b6914;min-width:${isMobile ? 'min(320px,92vw)' : 'min(320px,86vw)'};box-sizing:border-box;box-shadow:0 16px 44px rgba(0,0,0,.55);opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .2s ease, transform .2s ease, border-color .2s ease, box-shadow .2s ease;`);
   hud.infoName = el('div', `font-size:${isMobile ? 'clamp(14px,4vw,20px)' : 'clamp(17px,5vw,27px)'};font-weight:900;letter-spacing:.5px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);text-align:center;`, 'TOWER');
   hud.infoAccent = el('div', `width:clamp(40px,10vw,64px);height:3px;border-radius:2px;background:#fff;opacity:.85;`);
   hud.infoStats = el('div', `display:flex;gap:clamp(4px,1.5vw,8px);flex-wrap:wrap;justify-content:center;font-size:clamp(11px,3vw,15px);font-weight:900;color:#e7ecf3;`, '');
@@ -2070,6 +2071,7 @@ function showInfo(def, tower) {
     hud.overchargeBtn.classList.remove('buff-pulse');
     hud.powerShotBtn.classList.remove('buff-pulse');
   }
+  if (isMobile) hud.info.style.display = 'flex';
   hud.info.style.opacity = '1';
   hud.info.style.transform = 'translateY(0) scale(1)';
   hud.info.style.pointerEvents = 'auto';
@@ -2079,6 +2081,7 @@ function showInfo(def, tower) {
 function hideInfo() {
   sellTarget = null;
   if (hud.info) {
+    if (isMobile) hud.info.style.display = 'none';
     hud.info.style.opacity = '0';
     hud.info.style.transform = 'translateY(10px) scale(.96)';
     hud.info.style.pointerEvents = 'none';
