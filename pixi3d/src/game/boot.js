@@ -341,15 +341,23 @@ function applyCastleDamage(frac) {
 }
 
 function spawnCastleFire() {
-  const fireMat = unlitMat(0xff6a1a, 0.9);
-  const p = Mesh3D.createSphere(fireMat);
   const ang = Math.random() * Math.PI * 2;
   const rad = T * (0.85 + Math.random() * 0.4);
   const oy = T * (0.3 + Math.random() * 1.1);
-  p.position.set(baseWorld.x + Math.cos(ang) * rad, tileTop + oy, baseWorld.z + Math.sin(ang) * rad);
-  app.stage.addChild(p);
-  const life = 380 + Math.random() * 220;
-  bursts.push({ mesh: p, mat: fireMat, vx: Math.cos(ang) * 0.15, vz: Math.sin(ang) * 0.15, vy: 1.3 + Math.random() * 0.6, life, maxLife: life, base: 0.14 + Math.random() * 0.07, kind: 'spark' });
+  const bx = baseWorld.x + Math.cos(ang) * rad, bz = baseWorld.z + Math.sin(ang) * rad, by = tileTop + oy;
+  const vx = Math.cos(ang) * 0.12, vz = Math.sin(ang) * 0.12;
+  const life = 420 + Math.random() * 260;
+  const outerMat = unlitMat(0xff5a12, 0.9);
+  const outer = Mesh3D.createCylinder(outerMat, { radiusTop: 0.02, radiusBottom: 0.16, height: 1, radialSegments: 6 });
+  outer.position.set(bx, by, bz);
+  app.stage.addChild(outer);
+  bursts.push({ mesh: outer, mat: outerMat, vx, vz, vy: 1.1 + Math.random() * 0.5, life, maxLife: life, base: 0.55 + Math.random() * 0.25, kind: 'fire' });
+  const innerLife = life * 0.7;
+  const innerMat = unlitMat(0xffe066, 0.92);
+  const inner = Mesh3D.createCylinder(innerMat, { radiusTop: 0.01, radiusBottom: 0.09, height: 1, radialSegments: 6 });
+  inner.position.set(bx, by, bz);
+  app.stage.addChild(inner);
+  bursts.push({ mesh: inner, mat: innerMat, vx, vz, vy: 1.35 + Math.random() * 0.5, life: innerLife, maxLife: innerLife, base: 0.32 + Math.random() * 0.15, kind: 'fire' });
 }
 
 function updateCastleFire(dt) {
@@ -996,6 +1004,12 @@ function updateBursts(dt) {
     } else if (b.kind === 'flash') {
       b.mesh.scale.set(b.base * (0.3 + (1 - f) * 1.5));
       b.mat.baseColor.a = 0.9 * f;
+    } else if (b.kind === 'fire') {
+      b.mesh.position.x += b.vx * dt; b.mesh.position.z += b.vz * dt;
+      b.vy *= 0.94; b.mesh.position.y += b.vy * dt;
+      const flick = 0.8 + Math.random() * 0.4;
+      b.mesh.scale.set(b.base * (0.45 + f * 0.85) * flick);
+      b.mat.baseColor.a = Math.min(0.95, f * 1.5);
     } else {
       b.mesh.position.x += b.vx * dt; b.mesh.position.z += b.vz * dt;
       b.vy -= 9 * dt; b.mesh.position.y += b.vy * dt;

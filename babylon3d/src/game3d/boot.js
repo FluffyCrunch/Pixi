@@ -166,16 +166,25 @@ function applyCastleDamage(frac) {
 }
 
 function spawnCastleFire() {
-  const fireMat = new StandardMaterial('castleFireMat', scene);
-  fireMat.emissiveColor = new Color3(1, 0.42, 0.1); fireMat.disableLighting = true; fireMat.alpha = 0.9;
   const ang = Math.random() * Math.PI * 2;
   const rad = T * (0.85 + Math.random() * 0.4);
   const oy = T * (0.3 + Math.random() * 1.1);
-  const p = MeshBuilder.CreateSphere('castleFire', { diameter: 0.28 + Math.random() * 0.14, segments: 6 }, scene);
-  p.material = fireMat; p.isPickable = false;
-  p.position.set(baseWorld.x + Math.cos(ang) * rad, tileTop + oy, baseWorld.z + Math.sin(ang) * rad);
-  const life = 380 + Math.random() * 220;
-  bursts.push({ mesh: p, mat: fireMat, vx: Math.cos(ang) * 0.15, vz: Math.sin(ang) * 0.15, vy: 1.3 + Math.random() * 0.6, life, maxLife: life, kind: 'spark' });
+  const bx = baseWorld.x + Math.cos(ang) * rad, bz = baseWorld.z + Math.sin(ang) * rad, by = tileTop + oy;
+  const vx = Math.cos(ang) * 0.12, vz = Math.sin(ang) * 0.12;
+  const life = 420 + Math.random() * 260;
+  const outerMat = new StandardMaterial('castleFireOuterMat', scene);
+  outerMat.emissiveColor = new Color3(1, 0.35, 0.07); outerMat.disableLighting = true; outerMat.alpha = 0.9;
+  const outer = MeshBuilder.CreateCylinder('castleFireOuter', { diameterTop: 0.04, diameterBottom: 0.34, height: 0.5, tessellation: 6 }, scene);
+  outer.material = outerMat; outer.isPickable = false;
+  outer.position.set(bx, by, bz);
+  bursts.push({ mesh: outer, mat: outerMat, vx, vz, vy: 1.1 + Math.random() * 0.5, life, maxLife: life, kind: 'fire' });
+  const innerLife = life * 0.7;
+  const innerMat = new StandardMaterial('castleFireInnerMat', scene);
+  innerMat.emissiveColor = new Color3(1, 0.88, 0.4); innerMat.disableLighting = true; innerMat.alpha = 0.92;
+  const inner = MeshBuilder.CreateCylinder('castleFireInner', { diameterTop: 0.02, diameterBottom: 0.18, height: 0.4, tessellation: 6 }, scene);
+  inner.material = innerMat; inner.isPickable = false;
+  inner.position.set(bx, by, bz);
+  bursts.push({ mesh: inner, mat: innerMat, vx, vz, vy: 1.35 + Math.random() * 0.5, life: innerLife, maxLife: innerLife, kind: 'fire' });
 }
 
 function updateCastleFire(dt) {
@@ -857,6 +866,12 @@ function updateBursts(dt) {
     } else if (b.kind === 'flash') {
       b.mesh.scaling.setAll(0.3 + (1 - f) * 1.5);
       b.mat.alpha = 0.9 * f;
+    } else if (b.kind === 'fire') {
+      b.mesh.position.x += b.vx * dt; b.mesh.position.z += b.vz * dt;
+      b.vy *= 0.94; b.mesh.position.y += b.vy * dt;
+      const flick = 0.8 + Math.random() * 0.4;
+      b.mesh.scaling.setAll((0.45 + f * 0.85) * flick);
+      b.mat.alpha = Math.min(0.95, f * 1.5);
     } else {
       b.mesh.position.x += b.vx * dt; b.mesh.position.z += b.vz * dt;
       b.vy -= 9 * dt; b.mesh.position.y += b.vy * dt;
