@@ -1823,6 +1823,18 @@ html, body { -webkit-user-select: none; -moz-user-select: none; user-select: non
   hud.start.onclick = () => { ensureAudio(); if (state.phase === 'place' && state.wave < WAVES.length) { setBanner(true); sfx.wave(); spawner.start(); } };
   document.body.appendChild(hud.start);
 
+  let panOffset = 0;
+  const panMax = T * 3;
+  const panStep = T * 1;
+  const applyPan = () => { camera.target.x = (MAP_COLS / 2) * T + panOffset; };
+  const makePanBtn = side => el('button', `position:fixed;top:50%;${side}:clamp(6px,2vw,14px);transform:translateY(-50%);width:clamp(34px,8vw,46px);height:clamp(34px,8vw,46px);border-radius:50%;background:rgba(20,16,10,.5);border:2px solid rgba(255,255,255,.4);color:#fff;font-size:clamp(15px,4vw,20px);font-weight:900;cursor:pointer;z-index:9;display:flex;align-items:center;justify-content:center;padding:0;${font}`, side === 'left' ? '◀' : '▶');
+  const panLeftBtn = makePanBtn('left');
+  const panRightBtn = makePanBtn('right');
+  panLeftBtn.onclick = () => { panOffset = Math.max(-panMax, panOffset - panStep); applyPan(); };
+  panRightBtn.onclick = () => { panOffset = Math.min(panMax, panOffset + panStep); applyPan(); };
+  document.body.appendChild(panLeftBtn);
+  document.body.appendChild(panRightBtn);
+
   // hint + tower info panel share one right-anchored column, tucked under
   // the help button and out of the way of the map's central play area
   // (a bottom-center panel used to force camera rotation just to see what
