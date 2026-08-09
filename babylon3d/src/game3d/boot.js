@@ -1724,10 +1724,21 @@ html, body { -webkit-user-select: none; -moz-user-select: none; user-select: non
   document.body.appendChild(hud.banner);
 
   const CARD_IMG = { laser: 'weapon-turret', cannon: 'weapon-cannon', frost: 'tower-crystals' };
-  const shopBox = el('div', `bottom:clamp(6px,2vw,16px);left:clamp(6px,2vw,16px);`);
+  const shopBox = el('div', `bottom:clamp(6px,2vw,16px);left:clamp(6px,2vw,16px);${font}`);
   shopBox.className = 'vr-shopbox';
+  const shopHeader = el('div', `display:flex;justify-content:flex-end;padding:0 2px;`);
+  hud.shopToggle = el('button', `width:24px;height:20px;border-radius:7px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:11px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;`, '▾');
+  hud.shopToggle.title = 'Collapse tower shop';
+  shopHeader.appendChild(hud.shopToggle);
+  shopBox.appendChild(shopHeader);
   const shop = el('div', `display:flex;gap:clamp(4px,1.5vw,12px);overflow-x:auto;overflow-y:hidden;padding:14px 4px 8px 4px;${font}`);
   shop.className = 'vr-shop';
+  hud.shopToggle.onclick = () => {
+    hud.shopCollapsed = !hud.shopCollapsed;
+    shop.style.display = hud.shopCollapsed ? 'none' : 'flex';
+    hud.shopToggle.textContent = hud.shopCollapsed ? '▸' : '▾';
+    hud.shopToggle.title = hud.shopCollapsed ? 'Expand tower shop' : 'Collapse tower shop';
+  };
   hud.cards = {};
   for (const type of Object.keys(TOWER_TYPES).sort((a, b) => TOWER_TYPES[a].cost - TOWER_TYPES[b].cost)) {
     const def = TOWER_TYPES[type];
@@ -1816,19 +1827,18 @@ html, body { -webkit-user-select: none; -moz-user-select: none; user-select: non
   // tower info panel — cinematic glass card: gradient + blur + a glow that
   // matches the tower's own color, with a soft fade/scale-in transition
   const infoGap = isMobile ? 'clamp(3px,1vw,5px)' : 'clamp(6px,1.8vw,10px)';
-  const infoPad = isMobile ? 'clamp(6px,2vw,10px) clamp(5px,1.5vw,9px)' : 'clamp(12px,3.5vw,20px) clamp(14px,5vw,34px)';
-  hud.info = el('div', `position:relative;display:${isMobile ? 'none' : 'flex'};flex-direction:column;align-items:center;gap:${infoGap};padding:${infoPad};border-radius:clamp(12px,3.5vw,20px);background:linear-gradient(160deg, rgba(32,25,16,.97), rgba(10,8,5,.98));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:2px solid #8b6914;min-width:${isMobile ? 'min(320px,92vw)' : 'min(320px,86vw)'};box-sizing:border-box;box-shadow:0 16px 44px rgba(0,0,0,.55);opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .2s ease, transform .2s ease, border-color .2s ease, box-shadow .2s ease;`);
+  const infoPad = isMobile ? 'clamp(6px,2vw,10px) clamp(3px,1vw,6px)' : 'clamp(12px,3.5vw,20px) clamp(14px,5vw,34px)';
+  hud.info = el('div', `position:relative;display:${isMobile ? 'none' : 'flex'};flex-direction:column;align-items:center;gap:${infoGap};padding:${infoPad};border-radius:clamp(12px,3.5vw,20px);background:linear-gradient(160deg, rgba(32,25,16,.97), rgba(10,8,5,.98));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:2px solid #8b6914;min-width:${isMobile ? 'min(260px,80vw)' : 'min(320px,86vw)'};box-sizing:border-box;box-shadow:0 16px 44px rgba(0,0,0,.55);opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .2s ease, transform .2s ease, border-color .2s ease, box-shadow .2s ease;`);
   hud.infoName = el('div', `font-size:${isMobile ? 'clamp(14px,4vw,20px)' : 'clamp(17px,5vw,27px)'};font-weight:900;letter-spacing:.5px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);text-align:center;`, 'TOWER');
   hud.infoAccent = el('div', `width:clamp(40px,10vw,64px);height:3px;border-radius:2px;background:#fff;opacity:.85;`);
   hud.infoStats = el('div', `display:flex;gap:clamp(4px,1.5vw,8px);flex-wrap:wrap;justify-content:center;font-size:clamp(11px,3vw,15px);font-weight:900;color:#e7ecf3;`, '');
   const row = el('div', `display:flex;flex-wrap:wrap;gap:${isMobile ? 'clamp(3px,1vw,7px)' : 'clamp(6px,2vw,14px)'};align-items:center;justify-content:center;margin-top:${isMobile ? '1px' : '4px'};`);
-  hud.infoBuy = el('div', `padding:clamp(5px,1.5vw,9px) clamp(8px,2.5vw,16px);border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,233,168,.35);font-size:clamp(12px,3.4vw,18px);font-weight:900;color:#ffe9a8;`, '');
   hud.levelChip = el('div', `padding:clamp(5px,1.5vw,9px) clamp(8px,2.5vw,16px);border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(192,132,252,.4);font-size:clamp(11px,3vw,16px);font-weight:900;color:#e9d5ff;display:none;`, '');
   hud.sellBtn = el('button', `padding:clamp(6px,2vw,11px) clamp(12px,4vw,22px);border-radius:12px;background:linear-gradient(160deg,#9a2b2b,#6b1616);border:2px solid #ef8a8a;color:#ffe1e1;font-size:clamp(12px,3.4vw,18px);font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35);${font}`, 'SELL');
   hud.sellBtn.onclick = () => sellTower();
   hud.closeBtn = el('button', `position:absolute;top:clamp(6px,2vw,10px);right:clamp(6px,2vw,10px);width:clamp(26px,7vw,34px);height:clamp(26px,7vw,34px);border-radius:50%;background:linear-gradient(160deg,#3d3d3d,#222);border:2px solid #777;color:#eee;font-size:clamp(13px,3.6vw,18px);font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;padding:0;${font}`, '✕');
   hud.closeBtn.onclick = () => hideInfo();
-  row.append(hud.infoBuy, hud.levelChip, hud.sellBtn);
+  row.append(hud.levelChip, hud.sellBtn);
   const upRow = el('div', `display:flex;flex-wrap:wrap;gap:${isMobile ? 'clamp(3px,1vw,7px)' : 'clamp(4px,1.5vw,10px)'};align-items:center;justify-content:center;margin-top:${isMobile ? '0px' : '2px'};`);
   hud.upgradeBtn = el('button', `padding:clamp(6px,2vw,10px) clamp(8px,3vw,18px);border-radius:12px;background:linear-gradient(160deg,#7c3aed,#4c1d95);border:2px solid #c084fc;color:#f3e8ff;font-size:clamp(11px,3vw,16px);font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35);display:none;${font}`, 'UPGRADE');
   hud.upgradeBtn.onclick = () => { if (sellTarget && sellTarget.upgrade()) showInfo(sellTarget.def, sellTarget); };
@@ -2051,10 +2061,8 @@ function showInfo(def, tower) {                  // tower null => placement prev
   if (tower && tower.powerShot) chips.push(buffChip('🎯', 'POWER SHOT', '#fca5a5'));
   if (tower && tower.branch) chips.push(buffChip('🌟', TOWER_BRANCHES[tower.type][tower.branch].name.toUpperCase(), '#c084fc'));
   hud.infoStats.innerHTML = chips.join('');
-  hud.infoBuy.textContent = `Buy 🪙${def.cost}`;
-  hud.infoBuy.style.display = tower ? 'none' : '';
   hud.sellBtn.style.display  = tower ? '' : 'none';
-  hud.closeBtn.style.display = tower ? '' : 'none';
+  hud.closeBtn.style.display = '';
   if (tower) {
     hud.sellBtn.textContent = `SELL +🪙${Math.floor(tower.totalInvested * 0.6)}`;
     hud.levelChip.style.display = '';
