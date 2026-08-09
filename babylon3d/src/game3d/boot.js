@@ -128,9 +128,6 @@ function buildCastle(cx, cz) {
     cornerParts.forEach(collectCastleMats);
     castleRoofs.push(cornerParts[cornerParts.length - 1]);
   }
-  for (const cm of castleMeshMats) {
-    if ('metallic' in cm.mat) { cm.mat.metallic = 0.45; cm.mat.roughness = 0.3; }
-  }
   const poleMat = new StandardMaterial('poleMat', scene);
   poleMat.diffuseColor = new Color3(0.78, 0.75, 0.7);
   poleMat.specularColor = new Color3(1, 1, 1);
@@ -140,15 +137,18 @@ function buildCastle(cx, cz) {
   pole.material = poleMat; pole.isPickable = false;
   pole.position.set(cx, castleTopY + poleH / 2, cz);
   shadow.addShadowCaster(pole);
+  const flagPivot = new TransformNode('flagPivot', scene);
+  flagPivot.position.set(cx, castleTopY + poleH * 0.78, cz);
   const flagMat = new StandardMaterial('flagMat', scene);
   flagMat.emissiveColor = new Color3(1, 0.35, 0.24); flagMat.disableLighting = true;
-  const flagLength = T * 0.22, flagHeight = T * 0.15, flagThin = T * 0.012;
+  const flagLength = T * 0.3, flagHeight = T * 0.2, flagThin = T * 0.014;
   const flag = MeshBuilder.CreateCylinder('flag', { diameterTop: 2, diameterBottom: 0.04, height: 1, tessellation: 3 }, scene);
   flag.material = flagMat; flag.isPickable = false;
-  flag.scaling.set(flagHeight / 2, flagLength, flagThin);
-  flag.rotation.z = -Math.PI / 2;
-  flag.position.set(cx - flagLength / 2, castleTopY + poleH * 0.78, cz);
-  castleFlag = flag;
+  flag.scaling.set(flagThin, flagLength, flagHeight / 2);
+  flag.rotation.x = Math.PI / 2;
+  flag.position.set(0, 0, -flagLength / 2);
+  flag.parent = flagPivot;
+  castleFlag = flagPivot;
 }
 
 function applyCastleDamage(frac) {
@@ -167,6 +167,27 @@ function applyCastleDamage(frac) {
       roof.rotation.y = (Math.random() - 0.5) * (8 * Math.PI / 180);
       roof.rotation.z = (Math.random() - 0.5) * (10 * Math.PI / 180);
     }
+  }
+}
+
+function spawnCastleFire() {
+  const fireMat = new StandardMaterial('castleFireMat', scene);
+  fireMat.emissiveColor = new Color3(1, 0.42, 0.1); fireMat.disableLighting = true; fireMat.alpha = 0.9;
+  const ox = (Math.random() - 0.5) * T * 0.6, oz = (Math.random() - 0.5) * T * 0.6;
+  const p = MeshBuilder.CreateSphere('castleFire', { diameter: 0.22 + Math.random() * 0.12, segments: 6 }, scene);
+  p.material = fireMat; p.isPickable = false;
+  p.position.set(baseWorld.x + ox, tileTop + T * 0.9, baseWorld.z + oz);
+  const life = 380 + Math.random() * 220;
+  bursts.push({ mesh: p, mat: fireMat, vx: (Math.random() - 0.5) * 0.15, vz: (Math.random() - 0.5) * 0.15, vy: 1.3 + Math.random() * 0.6, life, maxLife: life, kind: 'spark' });
+}
+
+function updateCastleFire(dt) {
+  if (castleDamageFrac > 0.6 || state.phase === 'over') return;
+  castleFireTimer -= dt * 1000;
+  if (castleFireTimer <= 0) {
+    castleFireTimer = 750 - (0.6 - castleDamageFrac) * 900;
+    const count = castleDamageFrac < 0.25 ? 3 : castleDamageFrac < 0.45 ? 2 : 1;
+    for (let i = 0; i < count; i++) spawnCastleFire();
   }
 }
 
@@ -240,6 +261,7 @@ let castleTopY = 0;
 let castleDamageFrac = 1;
 let castleTiltDone = false;
 let castleSmokeTimer = 0;
+let castleFireTimer = 0;
 let castleFlag = null;
 let flagT = 0;
 
@@ -1555,7 +1577,8 @@ function tick(dt) {
   updateCaveBeacons(dt);
   updateDrips(dt);
   updateCastleSmoke(dt);
-  if (castleFlag) { flagT += dt; castleFlag.rotation.y = Math.sin(flagT * 4) * (12 * Math.PI / 180); }
+  if (castleFlag) { flagT += dt; castleFlag.rotation.y = Math.sin(flagT * 4) * (16 * Math.PI / 180); }
+  updateCastleFire(dt);
   updateTraps(dt);
   for (const e of enemies) e.update(dt);
   for (let i = enemies.length - 1; i >= 0; i--) {
