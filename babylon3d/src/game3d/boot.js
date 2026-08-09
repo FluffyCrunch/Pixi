@@ -1733,7 +1733,8 @@ html, body { -webkit-user-select: none; -moz-user-select: none; user-select: non
   shopBox.appendChild(shopHeader);
   const shop = el('div', `display:flex;gap:clamp(4px,1.5vw,12px);overflow-x:auto;overflow-y:hidden;padding:14px 4px 8px 4px;${font}`);
   shop.className = 'vr-shop';
-  const shopMini = el('div', `display:none;flex-wrap:wrap;gap:6px;padding:2px 4px 8px 4px;max-width:min(320px,80vw);${font}`);
+  const shopMini = el('div', `display:none;flex-wrap:nowrap;gap:6px;padding:2px 4px 8px 4px;overflow-x:auto;overflow-y:hidden;${font}`);
+  shopMini.className = 'vr-shop';
   hud.shopToggle.onclick = () => {
     hud.shopCollapsed = !hud.shopCollapsed;
     shop.style.display = hud.shopCollapsed ? 'none' : 'flex';
@@ -1743,7 +1744,7 @@ html, body { -webkit-user-select: none; -moz-user-select: none; user-select: non
   };
   hud.cards = {};
   hud.miniCards = {};
-  const miniPill = (hex) => `padding:5px clamp(8px,2.5vw,12px);border-radius:8px;background:#171208;border:2px solid ${hex};color:${hex};font-size:clamp(9px,2.4vw,11px);font-weight:900;cursor:pointer;white-space:nowrap;`;
+  const miniPill = (hex) => `flex:none;padding:5px clamp(8px,2.5vw,12px);border-radius:8px;background:#171208;border:2px solid ${hex};color:${hex};font-size:clamp(9px,2.4vw,11px);font-weight:900;cursor:pointer;white-space:nowrap;`;
   for (const type of Object.keys(TOWER_TYPES).sort((a, b) => TOWER_TYPES[a].cost - TOWER_TYPES[b].cost)) {
     const def = TOWER_TYPES[type];
     const hex = '#' + def.color.toString(16).padStart(6, '0');
