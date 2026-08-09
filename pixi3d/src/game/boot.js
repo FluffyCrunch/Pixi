@@ -1669,7 +1669,7 @@ html, body { -webkit-user-select: none; -moz-user-select: none; user-select: non
 .vr-card-name { font-size: clamp(9.5px,2.6vw,16px); font-weight: 900; line-height: 1.15; }
 .vr-card-cost { font-size: clamp(11px,3vw,19px); font-weight: 900; line-height: 1.15; }
 @media (max-width: 640px) {
-  .vr-banner { max-width: calc(100vw - 24px) !important; top: clamp(100px, 24vw, 150px) !important; font-size: clamp(13px,4vw,18px) !important; }
+  .vr-banner { top: auto !important; bottom: clamp(14px,4vw,34px) !important; left: auto !important; right: clamp(10px,3vw,24px) !important; transform: none !important; max-width: min(72vw, 320px) !important; font-size: clamp(12px,3.6vw,16px) !important; padding: clamp(8px,2.2vw,12px) clamp(10px,3vw,18px) !important; }
 }`;
   document.head.appendChild(styleTag);
 
@@ -1699,20 +1699,24 @@ html, body { -webkit-user-select: none; -moz-user-select: none; user-select: non
   const CARD_IMG = { laser: 'weapon-turret', cannon: 'weapon-cannon', frost: 'tower-crystals' };
   const shopBox = el('div', `bottom:clamp(6px,2vw,16px);left:clamp(6px,2vw,16px);${font}`);
   shopBox.className = 'vr-shopbox';
-  const shopHeader = el('div', `display:flex;justify-content:flex-end;padding:0 2px;`);
-  hud.shopToggle = el('button', `width:24px;height:20px;border-radius:7px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:11px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;`, '▾');
+  const shopHeader = el('div', `display:flex;justify-content:flex-end;padding:0 2px 2px 2px;`);
+  hud.shopToggle = el('button', `padding:2px clamp(8px,2.5vw,12px);border-radius:8px;background:#171208;border:2px solid #8b6914;color:#ffe9a8;font-size:clamp(9px,2.4vw,11px);font-weight:900;cursor:pointer;display:flex;align-items:center;gap:4px;line-height:1.6;${font}`, '▾ Hide');
   hud.shopToggle.title = 'Collapse tower shop';
   shopHeader.appendChild(hud.shopToggle);
   shopBox.appendChild(shopHeader);
   const shop = el('div', `display:flex;gap:clamp(4px,1.5vw,12px);overflow-x:auto;overflow-y:hidden;padding:14px 4px 8px 4px;${font}`);
   shop.className = 'vr-shop';
+  const shopMini = el('div', `display:none;flex-wrap:wrap;gap:6px;padding:2px 4px 8px 4px;max-width:min(320px,80vw);${font}`);
   hud.shopToggle.onclick = () => {
     hud.shopCollapsed = !hud.shopCollapsed;
     shop.style.display = hud.shopCollapsed ? 'none' : 'flex';
-    hud.shopToggle.textContent = hud.shopCollapsed ? '▸' : '▾';
+    shopMini.style.display = hud.shopCollapsed ? 'flex' : 'none';
+    hud.shopToggle.innerHTML = hud.shopCollapsed ? '▸ Show' : '▾ Hide';
     hud.shopToggle.title = hud.shopCollapsed ? 'Expand tower shop' : 'Collapse tower shop';
   };
   hud.cards = {};
+  hud.miniCards = {};
+  const miniPill = (hex) => `padding:5px clamp(8px,2.5vw,12px);border-radius:8px;background:#171208;border:2px solid ${hex};color:${hex};font-size:clamp(9px,2.4vw,11px);font-weight:900;cursor:pointer;white-space:nowrap;`;
   for (const type of Object.keys(TOWER_TYPES).sort((a, b) => TOWER_TYPES[a].cost - TOWER_TYPES[b].cost)) {
     const def = TOWER_TYPES[type];
     const hex = '#' + def.color.toString(16).padStart(6, '0');
@@ -1743,6 +1747,9 @@ html, body { -webkit-user-select: none; -moz-user-select: none; user-select: non
       `<div class="vr-card-cost" style="color:#ffe9a8;">🪙 ${def.cost}</div>`;
     card.onclick = () => selectType(type);
     hud.cards[type] = card; shop.appendChild(card);
+    const mini = el('div', miniPill(hex), def.name.toUpperCase());
+    mini.onclick = () => { hud.shopToggle.click(); selectType(type); };
+    hud.miniCards[type] = mini; shopMini.appendChild(mini);
   }
   const trapCard = el('div', `border-top:clamp(4px,1.2vw,6px) solid #ff8a5c;`);
   trapCard.className = 'vr-card';
@@ -1773,7 +1780,11 @@ html, body { -webkit-user-select: none; -moz-user-select: none; user-select: non
     `<div class="vr-card-cost" style="color:#ffe9a8;">🪙 ${TRAP_DEF.cost}</div>`;
   trapCard.onclick = () => selectTrap();
   hud.trapCard = trapCard; shop.appendChild(trapCard);
+  const trapMini = el('div', miniPill('#ff8a5c'), 'SPIKE TRAP');
+  trapMini.onclick = () => { hud.shopToggle.click(); selectTrap(); };
+  hud.trapMini = trapMini; shopMini.appendChild(trapMini);
   shopBox.appendChild(shop);
+  shopBox.appendChild(shopMini);
   if (isMobile) {
     const swipeHint = el('div', `position:absolute;top:50%;right:6px;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.5);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;pointer-events:none;z-index:2;animation:swipeHint 1.3s ease-in-out infinite;`, '›');
     shopBox.appendChild(swipeHint);
@@ -1910,6 +1921,10 @@ function updateShopAffordability() {
     const costEl = hud.trapCard.querySelector('.vr-card-cost');
     if (costEl) costEl.style.color = affordable ? '#ffe9a8' : '#ff6b6b';
   }
+  for (const [t, mini] of Object.entries(hud.miniCards || {})) {
+    mini.style.opacity = state.gold >= TOWER_TYPES[t].cost ? '1' : '.55';
+  }
+  if (hud.trapMini) hud.trapMini.style.opacity = state.gold >= TRAP_DEF.cost ? '1' : '.55';
 }
 function updateHint() {
   if (!hud.hint) return;
