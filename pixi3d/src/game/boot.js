@@ -317,10 +317,13 @@ function buildCastle(cx, cz) {
   pole.position.set(cx, castleTopY + poleH / 2, cz);
   pipeline.enableShadows(pole, shadowLight);
   app.stage.addChild(pole);
-  const flag = Mesh3D.createCube(unlitMat(0xff5a3c));
-  flag.scale.set(T * 0.09, T * 0.06, T * 0.006);
-  flag.position.set(cx + T * 0.09, castleTopY + poleH * 0.78, cz);
+  const flagLength = T * 0.22, flagHeight = T * 0.15, flagThin = T * 0.012;
+  const flag = Mesh3D.createCylinder(unlitMat(0xff5a3c), { radiusTop: 1, radiusBottom: 0.02, height: 1, radialSegments: 3 });
+  flag.scale.set(flagHeight / 2, flagLength, flagThin);
+  flag.rotationQuaternion.setEulerAngles(0, 0, -90);
+  flag.position.set(cx - flagLength / 2, castleTopY + poleH * 0.78, cz);
   app.stage.addChild(flag);
+  castleFlag = flag;
 }
 
 function applyCastleDamage(frac) {
@@ -411,6 +414,8 @@ let castleTopY = 0;
 let castleDamageFrac = 1;
 let castleTiltDone = false;
 let castleSmokeTimer = 0;
+let castleFlag = null;
+let flagT = 0;
 
 function isBuildable(c, r) {
   if (r < 0 || r >= MAP_ROWS || c < 0 || c >= MAP_COLS) return false;
@@ -1526,6 +1531,7 @@ function tick(dt) {
   updateCaveBeacons(dt);
   updateDrips(dt);
   updateCastleSmoke(dt);
+  if (castleFlag) { flagT += dt; castleFlag.rotationQuaternion.setEulerAngles(0, Math.sin(flagT * 4) * 12, -90); }
   updateTraps(dt);
   for (const e of enemies) e.update(dt);
   for (let i = enemies.length - 1; i >= 0; i--) {

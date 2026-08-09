@@ -142,9 +142,13 @@ function buildCastle(cx, cz) {
   shadow.addShadowCaster(pole);
   const flagMat = new StandardMaterial('flagMat', scene);
   flagMat.emissiveColor = new Color3(1, 0.35, 0.24); flagMat.disableLighting = true;
-  const flag = MeshBuilder.CreateBox('flag', { width: T * 0.09, height: T * 0.06, depth: T * 0.006 }, scene);
+  const flagLength = T * 0.22, flagHeight = T * 0.15, flagThin = T * 0.012;
+  const flag = MeshBuilder.CreateCylinder('flag', { diameterTop: 2, diameterBottom: 0.04, height: 1, tessellation: 3 }, scene);
   flag.material = flagMat; flag.isPickable = false;
-  flag.position.set(cx + T * 0.09, castleTopY + poleH * 0.78, cz);
+  flag.scaling.set(flagHeight / 2, flagLength, flagThin);
+  flag.rotation.z = -Math.PI / 2;
+  flag.position.set(cx - flagLength / 2, castleTopY + poleH * 0.78, cz);
+  castleFlag = flag;
 }
 
 function applyCastleDamage(frac) {
@@ -236,6 +240,8 @@ let castleTopY = 0;
 let castleDamageFrac = 1;
 let castleTiltDone = false;
 let castleSmokeTimer = 0;
+let castleFlag = null;
+let flagT = 0;
 
 function isBuildable(c, r) {
   if (r < 0 || r >= MAP_ROWS || c < 0 || c >= MAP_COLS) return false;
@@ -1549,6 +1555,7 @@ function tick(dt) {
   updateCaveBeacons(dt);
   updateDrips(dt);
   updateCastleSmoke(dt);
+  if (castleFlag) { flagT += dt; castleFlag.rotation.y = Math.sin(flagT * 4) * (12 * Math.PI / 180); }
   updateTraps(dt);
   for (const e of enemies) e.update(dt);
   for (let i = enemies.length - 1; i >= 0; i--) {
