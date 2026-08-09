@@ -1,9 +1,0 @@
-{
-  "name": "Voidwatch",
-  "short_name": "Voidwatch",
-  "description": "A wave-based tower defense game built with PixiJS",
-  "start_url": "/",
-  "display": "fullscreen",
-  "background_color": "#050510",
-  "theme_color": "#050510"
-}
