@@ -1681,7 +1681,11 @@ function buildHUD() {
 .vr-card-icon img, .vr-card-icon svg { width: clamp(46px,12vw,88px); height: clamp(46px,12vw,88px); }
 .vr-card svg { width: clamp(34px,9vw,64px); height: clamp(34px,9vw,64px); }
 .vr-card-name { font-size: clamp(9.5px,2.6vw,16px); font-weight: 900; line-height: 1.15; }
-.vr-card-cost { font-size: clamp(11px,3vw,19px); font-weight: 900; line-height: 1.15; }`;
+.vr-card-cost { font-size: clamp(11px,3vw,19px); font-weight: 900; line-height: 1.15; }
+@media (max-width: 640px) {
+  .vr-banner { max-width: calc(100vw - 24px) !important; top: clamp(100px, 24vw, 150px) !important; font-size: clamp(13px,4vw,18px) !important; }
+  .vr-sidepanel { top: 50% !important; right: auto !important; left: 50% !important; transform: translate(-50%, -50%) !important; align-items: center !important; max-width: 92vw !important; max-height: 80vh !important; overflow-y: auto !important; }
+}`;
   document.head.appendChild(styleTag);
 
   // a column wrapper stacks the top pills + cave indicator with no manual
@@ -1705,6 +1709,7 @@ function buildHUD() {
   document.body.appendChild(topWrap);
 
   hud.banner = el('div', `position:fixed;top:clamp(10px,3vw,20px);left:50%;transform:translateX(-50%);padding:clamp(8px,2.5vw,12px) clamp(14px,5vw,32px);border-radius:16px;background:rgba(20,16,10,.92);border:clamp(2px,.6vw,3px) solid #ef4444;color:#ffdada;font-size:clamp(16px,5vw,28px);font-weight:900;z-index:10;display:none;max-width:90vw;text-align:center;${font}`, '☠ Enemies Incoming!');
+  hud.banner.className = 'vr-banner';
   document.body.appendChild(hud.banner);
 
   const CARD_IMG = { laser: 'weapon-turret', cannon: 'weapon-cannon', frost: 'tower-crystals' };
@@ -1785,6 +1790,7 @@ function buildHUD() {
   // (a bottom-center panel used to force camera rotation just to see what
   // was underneath it while placing a tower)
   const sidePanel = el('div', `position:fixed;top:clamp(78px,17vw,90px);right:clamp(6px,2vw,14px);display:flex;flex-direction:column;align-items:flex-end;gap:clamp(8px,2.5vw,16px);z-index:11;max-width:min(380px,94vw);${font}`);
+  sidePanel.className = 'vr-sidepanel';
 
   // placement prompt (shown while a tower type is selected)
   hud.hint = el('div', `padding:clamp(8px,2.5vw,12px) clamp(12px,4vw,26px);border-radius:14px;background:rgba(20,30,50,.94);border:clamp(2px,.6vw,3px) solid #60a5fa;color:#dbeafe;font-size:clamp(13px,3.8vw,20px);font-weight:900;display:none;`);
