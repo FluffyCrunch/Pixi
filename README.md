@@ -2,6 +2,8 @@
 
 A 3D tower defense game built with the [Kenney Tower Defense Kit](https://kenney.nl/) assets, implemented twice against the same game data with two different rendering engines.
 
+**Play it live (PixiJS build):** [voidrushpixi.netlify.app](https://voidrushpixi.netlify.app/)
+
 ![Void Rush gameplay](docs/screenshots/screenshot-1.png)
 ![Void Rush HUD](docs/screenshots/screenshot-2.png)
 ![Void Rush overview](docs/screenshots/screenshot-3.png)
@@ -13,7 +15,7 @@ This repo contains two parallel, self-contained implementations of the same game
 | Folder | Engine | Status |
 | --- | --- | --- |
 | [`babylon3d/`](babylon3d/) | [Babylon.js](https://www.babylonjs.com/) | Primary / most complete build |
-| [`pixi3d/`](pixi3d/) | [PixiJS](https://pixijs.com/) + [pixi3d](https://github.com/jnsmalm/pixi3d) | Same GLB models & game data, custom GLB loader |
+| [`pixi3d/`](pixi3d/) | [PixiJS](https://pixijs.com/) + [pixi3d](https://github.com/jnsmalm/pixi3d) | Same GLB models & game data, custom GLB loader — [live demo](https://voidrushpixi.netlify.app/) |
 
 Both share the same map layout, waves, towers, and enemy data, just rendered through different 3D pipelines.
 
