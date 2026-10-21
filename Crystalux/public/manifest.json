@@ -1,0 +1,9 @@
+{
+  "name": "Crystalux",
+  "short_name": "Crystalux",
+  "description": "A polished gem-matching puzzle game built with PixiJS",
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#0a0a1a",
+  "theme_color": "#0a0a1a"
+}

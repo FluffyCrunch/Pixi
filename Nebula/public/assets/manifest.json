@@ -1,0 +1,12 @@
+{
+  "bundles": [
+    {
+      "name": "nebula",
+      "assets": [
+        { "alias": "particle",     "src": "assets/particle.png" },
+        { "alias": "displacement", "src": "assets/displacement.png" },
+        { "alias": "starfield",    "src": "assets/starfield.png" }
+      ]
+    }
+  ]
+}

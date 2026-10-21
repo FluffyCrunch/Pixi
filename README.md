@@ -1,69 +1,49 @@
-# Void Rush
+# PixiJS Games
 
-A 3D tower defense game built with the [Kenney Tower Defense Kit](https://kenney.nl/) assets, implemented twice against the same game data with two different rendering engines.
+A collection of browser games and interactive experiences I've built with [PixiJS](https://pixijs.com/). Each folder is a self-contained [Vite](https://vite.dev/) project with its own README.
 
-**Play it live (PixiJS build):** [voidrushpixi.netlify.app](https://voidrushpixi.netlify.app/)
+| Game | What it is | Tech | Play |
+| --- | --- | --- | --- |
+| 🏰 [**Void Rush**](Void-Rush/) | 3D tower defense with branching upgrades and boss waves | PixiJS v7 + pixi3d, Babylon.js | [▶️ Live](https://voidrushpixi.netlify.app/) |
+| 💎 [**Crystalux**](Crystalux/) | 60-second match-3 gem puzzler with combos and bombs | PixiJS v8 | [▶️ Live](https://crystalux.netlify.app/) |
+| 🌌 [**Nebula**](Nebula/) | Interactive cosmic particle experience with a custom GLSL shader | PixiJS v8 | [▶️ Live](https://nebula-pixijs.netlify.app/) |
 
-![Void Rush gameplay](docs/screenshots/screenshot-1.png)
-![Void Rush HUD](docs/screenshots/screenshot-2.png)
-![Void Rush overview](docs/screenshots/screenshot-3.png)
+---
 
-## Builds
+## 🏰 Void Rush
 
-This repo contains two parallel, self-contained implementations of the same game:
+A 3D tower defense game built twice on the same game data, once with **PixiJS + pixi3d** (with a custom GLB loader) and once with **Babylon.js**. Place Frost, Laser, Cannon, Tesla and Spike Trap towers, unlock branching upgrades, and survive escalating waves with boss encounters.
 
-| Folder | Engine | Status |
-| --- | --- | --- |
-| [`babylon3d/`](babylon3d/) | [Babylon.js](https://www.babylonjs.com/) | Primary / most complete build |
-| [`pixi3d/`](pixi3d/) | [PixiJS](https://pixijs.com/) + [pixi3d](https://github.com/jnsmalm/pixi3d) | Same GLB models & game data, custom GLB loader — [live demo](https://voidrushpixi.netlify.app/) |
+[![Void Rush](Void-Rush/docs/screenshots/screenshot-1.png)](https://voidrushpixi.netlify.app/)
 
-Both share the same map layout, waves, towers, and enemy data, just rendered through different 3D pipelines.
+**[Play it live](https://voidrushpixi.netlify.app/)** · [Source & details](Void-Rush/)
 
-## Gameplay
+---
 
-Place towers along the paths to stop waves of enemies from reaching your castle. Earn gold by defeating enemies, upgrade tower branches, and survive escalating waves — including boss waves — across multiple difficulties.
+## 💎 Crystalux
 
-- Multiple tower types: Frost, Laser, Cannon, Tesla, Spike Trap
-- Branching tower upgrades
-- Wave-based enemy spawns with boss encounters
-- Gold economy and base HP
-- Kenney Tower Defense Kit 3D models and textures
+A fast match-3 puzzler. Swap gems on an 8×8 board, chain cascades into combos, trigger bomb gems, and race a 60-second clock. It also has hints, particle bursts, music and sound effects, and a responsive layout that works on mobile.
 
-## Running locally
+[![Crystalux](Crystalux/docs/screenshots/screenshot-2.png)](https://crystalux.netlify.app/)
 
-Each build is an independent Vite project.
+**[Play it live](https://crystalux.netlify.app/)** · [Source & details](Crystalux/)
+
+---
+
+## 🌌 Nebula
+
+A pool of 2,000 glowing particles that drift with noise-based motion. Move your cursor to attract them and click to burst new ones. A custom GLSL filter adds a chromatic-aberration shimmer, and the whole thing installs as a PWA.
+
+[![Nebula](Nebula/docs/screenshots/screenshot-1.png)](https://nebula-pixijs.netlify.app/)
+
+**[Try it live](https://nebula-pixijs.netlify.app/)** · [Source & details](Nebula/)
+
+---
+
+## Running any project locally
 
 ```bash
-cd babylon3d      # or pixi3d
+cd Crystalux      # or Nebula, Void-Rush/pixi3d, Void-Rush/babylon3d
 npm install
 npm run dev
 ```
-
-Then open the printed local URL in your browser.
-
-### Build for production
-
-```bash
-npm run build
-npm run preview
-```
-
-## Project structure
-
-```
-voidwatch/
-├── babylon3d/              # Babylon.js build
-│   ├── src/game3d/
-│   │   ├── boot.js         # engine, scene, camera, lights, game loop
-│   │   ├── data.js         # map layout, towers, enemies, waves, difficulties
-│   │   └── sfx.js          # audio
-│   └── public/              # models, textures, kenney assets
-├── pixi3d/                  # PixiJS + pixi3d build
-│   ├── src/game/
-│   └── public/
-└── kenney_tower-defense-kit/ # source art assets
-```
-
-## Assets
-
-3D models and textures come from the [Kenney Tower Defense Kit](https://kenney.nl/assets/tower-defense-kit), used under Kenney's CC0 license.

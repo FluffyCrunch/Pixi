@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="An interactive cosmic particle experience" />
+    <meta name="theme-color" content="#000000" />
+
+    <title>Nebula</title>
+
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #000; overflow: hidden; }
+      canvas { display: block; pointer-events: auto; }
+    </style>
+  </head>
+  <body>
+    <script type="module" src="/src/main.js"></script>
+
+    <!-- register service worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(() => console.log('SW registered'))
+            .catch((e) => console.log('SW failed', e));
+        });
+      }
+    </script>
+  </body>
+</html>

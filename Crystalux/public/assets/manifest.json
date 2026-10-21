@@ -1,0 +1,17 @@
+{
+  "bundles": [
+    {
+      "name": "preload",
+      "assets": []
+    },
+    {
+      "name": "game",
+      "assets": [
+        { "alias": "swap",  "src": "assets/audio/swap.mp3"  },
+        { "alias": "match", "src": "assets/audio/match.mp3" },
+        { "alias": "bgm",   "src": "assets/audio/bgm.mp3"   },
+        { "alias": "tick",  "src": "assets/audio/tick.mp3"  }
+      ]
+    }
+  ]
+}
